@@ -1,0 +1,51 @@
+from __future__ import annotations
+
+from mmdet.models.detectors import FasterRCNN
+from mmdet.registry import MODELS as MMDET_MODELS
+from mmdet.structures import SampleList
+from mmrotate.registry import MODELS as MMROTATE_MODELS
+from torch import Tensor
+
+
+@MMDET_MODELS.register_module()
+@MMROTATE_MODELS.register_module()
+class CopernicusFasterRCNN(FasterRCNN):
+    """Faster/Oriented R-CNN wrapper forwarding metadata to Copernicus-FM."""
+
+    def _set_copernicus_metainfo(
+        self,
+        batch_data_samples: SampleList | None,
+    ) -> None:
+        if not hasattr(self.backbone, "set_batch_metainfo"):
+            return
+        if batch_data_samples is None:
+            self.backbone.set_batch_metainfo(None)
+            return
+        self.backbone.set_batch_metainfo(
+            [data_sample.metainfo for data_sample in batch_data_samples]
+        )
+
+    def loss(
+        self,
+        batch_inputs: Tensor,
+        batch_data_samples: SampleList,
+    ) -> dict:
+        self._set_copernicus_metainfo(batch_data_samples)
+        return super().loss(batch_inputs, batch_data_samples)
+
+    def predict(
+        self,
+        batch_inputs: Tensor,
+        batch_data_samples: SampleList,
+        rescale: bool = True,
+    ) -> SampleList:
+        self._set_copernicus_metainfo(batch_data_samples)
+        return super().predict(batch_inputs, batch_data_samples, rescale)
+
+    def _forward(
+        self,
+        batch_inputs: Tensor,
+        batch_data_samples: SampleList | None = None,
+    ) -> tuple:
+        self._set_copernicus_metainfo(batch_data_samples)
+        return super()._forward(batch_inputs, batch_data_samples)
