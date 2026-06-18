@@ -19,14 +19,9 @@ num_timesteps = 1
 patch_size = 16
 out_channels = 768
 fpn_channels = 256
-featmap_strides = [
-    patch_size,
-    patch_size * 2,
-    patch_size * 4,
-    patch_size * 8,
-    patch_size * 16,
-]
-roi_featmap_strides = featmap_strides[:4]
+featmap_strides = [4, 8, 16, 32]
+roi_featmap_strides = featmap_strides
+neck_rescale_factors = [4, 2, 1, 0.5]
 num_s2_channels = 12 * num_timesteps
 backend_args = None
 
@@ -179,7 +174,7 @@ model = dict(
         type="OlmoEarthMultiLevelNeck",
         in_channels=out_channels,
         out_channels=fpn_channels,
-        scales=[1.0, 0.5, 0.25, 0.125, 0.0625],
+        scales=neck_rescale_factors,
     ),
     rpn_head=dict(
         type="OrientedRPNHead",

@@ -39,7 +39,7 @@ class OlmoEarthBackbone(BaseModule):
         self,
         model_config_path: str,
         modality: str = "sentinel2_l2a",
-        patch_size: int = 4,
+        patch_size: int = 16,
         num_timesteps: int = 1,
         out_channels: int = 768,
         pooling_type: str = "mean",

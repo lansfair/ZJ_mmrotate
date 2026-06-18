@@ -30,8 +30,8 @@ DIOR 不是天然等于 DOTA 格式：
 
 - `configs/dota/olmoearth_oriented-rcnn_1x_dota_rgb.py`：标准 DOTA。
 - `configs/dior/olmoearth-10m_oriented-rcnn_1x_dior-rgb-frozen.py`：DIOR-R oriented XML。
-- `configs/dota/olmoearth_oriented-rcnn_1x_dota_rgb.py`：已经转成 DOTA txt
-  的 DIOR/DIOR-R。
+- DIOR/DIOR-R 如果已经转成 DOTA txt，需要以 `configs/dota/` 示例为模板，
+  另行调整类别数和数据路径；当前不再保留专门的 DIOR-DOTA 入口配置。
 
 更具体地说：
 
@@ -40,7 +40,7 @@ DIOR 不是天然等于 DOTA 格式：
 | 原始 DIOR 水平框 XML | `Annotations/*.xml`，里面是 `bndbox` | 用 MMDetection，不用 MMRotate |
 | DIOR-R oriented XML | `Annotations/Oriented Bounding Boxes/*.xml`，里面是 `robndbox` | `configs/dior/olmoearth-10m_oriented-rcnn_1x_dior-rgb-frozen.py` |
 | DOTA txt | `trainval/annfiles/*.txt` | `configs/dota/olmoearth_oriented-rcnn_1x_dota_rgb.py` |
-| DIOR 转成 DOTA txt | `annfiles/*.txt`，类别是 DIOR 20 类 | `configs/dota/olmoearth_oriented-rcnn_1x_dota_rgb.py` |
+| DIOR 转成 DOTA txt | `annfiles/*.txt`，类别是 DIOR 20 类 | 以 `configs/dota/` 示例为模板，另行调整 `num_classes` 和类别定义 |
 
 训练前先用下面的命令确认目录，不要凭数据集名字猜格式：
 
@@ -91,13 +91,21 @@ OLMoEarth encoder 原生只输出一个 dense feature map。MMRotate 的 Oriente
 R-CNN/RPN 希望得到多尺度特征，所以这里增加了 `OlmoEarthMultiLevelNeck`：
 
 ```text
-OLMoEarth feature, stride = patch_size
-  -> scale 1.0      stride patch_size
-  -> scale 0.5      stride patch_size * 2
-  -> scale 0.25     stride patch_size * 4
-  -> scale 0.125    stride patch_size * 8
-  -> scale 0.0625   stride patch_size * 16
+OLMoEarth feature, effective stride = 16
+  -> scale 4        stride 4
+  -> scale 2        stride 8
+  -> scale 1        stride 16
+  -> scale 0.5      stride 32
 ```
+
+这里的 `patch_size` 是传给 OLMoEarth encoder 的 `patch_size_at_16`，不是
+MMRotate 检测头里的最终 stride。native/S2 adapter 使用 `patch_size=16`，
+因为 `sentinel2_l2a.image_tile_size_factor=1`；OLMoEarth 10m 源码中
+`rgb.image_tile_size_factor=4`，所以 10m RGB 配置传 `patch_size=4`，实际
+patch 仍然是 `4 x 4 = 16`；OLMoEarth 2m 源码中
+`rgb.image_tile_size_factor=1`，所以 2m RGB 配置仍传 `patch_size=16`。三条
+路径的有效 backbone stride 都是 16，检测侧统一使用
+`featmap_strides = [4, 8, 16, 32]`。
 
 这些层不是重新跑多层 ViT block，而是对同一个 dense map 做 resize 后接 1x1
 conv，目的是对齐检测头需要的 FPN 接口。更重的方案可以以后替换为真正的
