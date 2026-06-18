@@ -8,11 +8,11 @@ custom_imports = dict(
     allow_failed_imports=False,
 )
 
-data_root = "/mnt/ht2-nas2/EO test/zyf/data/DIOR-R"
+data_root = "/mnt/ht2-nas2/EO_test/openmmlab-archive/dat/dior-r"
 olmoearth_model_dir = "/mnt/ht2-nas2/EO_test/model/OlmoEarth-v1-Base"
 model_config_path = f"{olmoearth_model_dir}/config.json"
 weights_path = f"{olmoearth_model_dir}/weights.pth"
-work_dir = "./work_dirs/olmoearth_oriented-rcnn_dior-r_s2adapter"
+work_dir = "/mnt/qh2-nas3/EO_test/wyf/scale-model-test/dior-r/olmoearth_oriented-rcnn_dior-r_s2adapter"
 
 angle_version = "le90"
 num_timesteps = 1
@@ -181,8 +181,8 @@ model = dict(
     type="OlmoEarthFasterRCNN",
     data_preprocessor=dict(
         type="mmdet.DetDataPreprocessor",
-        mean=[0.0] * num_s2_channels,
-        std=[1.0] * num_s2_channels,
+        mean=None,
+        std=None,
         bgr_to_rgb=False,
         pad_size_divisor=32,
         boxtype2tensor=False,
