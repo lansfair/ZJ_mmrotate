@@ -1,6 +1,6 @@
 _base_ = [
-    "../../../configs/_base_/schedules/schedule_1x.py",
-    "../../../configs/_base_/default_runtime.py",
+    "../../../../configs/_base_/schedules/schedule_1x.py",
+    "../../../../configs/_base_/default_runtime.py",
 ]
 
 custom_imports = dict(
@@ -8,11 +8,11 @@ custom_imports = dict(
     allow_failed_imports=False,
 )
 
-data_root = "data/split_ss_dota/"
+data_root = "/mnt/ht2-nas2/EO test/zyf/data/DIOR"
 olmoearth_model_dir = "/mnt/ht2-nas2/EO_test/model/OlmoEarth-v1-Base"
 model_config_path = f"{olmoearth_model_dir}/config.json"
 weights_path = f"{olmoearth_model_dir}/weights.pth"
-work_dir = "./work_dirs/olmoearth-base_oriented-rcnn_dota-rgb-s2adapter"
+work_dir = "./work_dirs/olmoearth_oriented-rcnn_dior-rgb-s2adapter"
 
 angle_version = "le90"
 num_timesteps = 1
@@ -30,7 +30,7 @@ roi_featmap_strides = featmap_strides[:4]
 num_s2_channels = 12 * num_timesteps
 backend_args = None
 
-dataset_type = "DOTADataset"
+dataset_type = "DIORDataset"
 train_pipeline = [
     dict(type="mmdet.LoadImageFromFile", backend_args=backend_args),
     dict(type="mmdet.LoadAnnotations", with_bbox=True, box_type="qbox"),
@@ -127,8 +127,9 @@ train_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file="trainval/annfiles/",
-        data_prefix=dict(img_path="trainval/images/"),
+        ann_file="ImageSets/Main/train.txt",
+        data_prefix=dict(img_path="JPEGImages-trainval"),
+        ann_type="obb",
         filter_cfg=dict(filter_empty_gt=True),
         pipeline=train_pipeline,
     ),
@@ -142,8 +143,9 @@ val_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file="trainval/annfiles/",
-        data_prefix=dict(img_path="trainval/images/"),
+        ann_file="ImageSets/Main/test.txt",
+        data_prefix=dict(img_path="JPEGImages-test"),
+        ann_type="obb",
         test_mode=True,
         pipeline=val_pipeline,
     ),
@@ -226,7 +228,7 @@ model = dict(
             in_channels=fpn_channels,
             fc_out_channels=1024,
             roi_feat_size=7,
-            num_classes=15,
+            num_classes=20,
             reg_predictor_cfg=dict(type="mmdet.Linear"),
             cls_predictor_cfg=dict(type="mmdet.Linear"),
             bbox_coder=dict(

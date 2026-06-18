@@ -1,4 +1,4 @@
-_base_ = ["./olmoearth-base_oriented-rcnn_1x_dior-rgb.py"]
+_base_ = ["../_base_/olmoearth_oriented-rcnn_dior_rgb.py"]
 
 olmoearth_model_dir = (
     "D:/ZJ_projects/model_code/code_release/olmoearth10m/OlmoEarth-v1-Base"

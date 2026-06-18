@@ -1,4 +1,4 @@
-_base_ = ["./olmoearth-base_oriented-rcnn_1x_dior-rgb-s2adapter.py"]
+_base_ = ["../_base_/olmoearth_oriented-rcnn_dior_s2adapter.py"]
 
 olmoearth_model_dir = "/mnt/ht2-nas2/EO_test/model/OlmoEarth-v1-Base"
 model_config_path = f"{olmoearth_model_dir}/config.json"

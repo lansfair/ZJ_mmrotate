@@ -1,6 +1,6 @@
 _base_ = [
-    "../../../configs/_base_/schedules/schedule_1x.py",
-    "../../../configs/_base_/default_runtime.py",
+    "../../../../configs/_base_/schedules/schedule_1x.py",
+    "../../../../configs/_base_/default_runtime.py",
 ]
 
 custom_imports = dict(
@@ -12,7 +12,7 @@ data_root = "data/split_ss_dota/"
 olmoearth_model_dir = "/mnt/ht2-nas2/EO_test/model/OlmoEarth-v1-Base"
 model_config_path = f"{olmoearth_model_dir}/config.json"
 weights_path = f"{olmoearth_model_dir}/weights.pth"
-work_dir = "./work_dirs/olmoearth-base_oriented-rcnn_dota-rgb"
+work_dir = "./work_dirs/olmoearth_oriented-rcnn_dota-rgb"
 
 angle_version = "le90"
 num_timesteps = 1

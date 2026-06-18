@@ -30,10 +30,16 @@ Use the OLMoEarth project that matches the downstream task:
 The implementation is registered under `mmrotate.registry` and keeps changes
 inside `projects/olmoearth`.
 
-## Supported Example Configs
+## Config Layout
 
-- `configs/olmoearth-base_oriented-rcnn_1x_dota-rgb.py`
-  uses MMRotate `DOTADataset` for standard DOTA-style split data:
+- `configs/dior/` contains only the six main DIOR-R experiment entrypoints.
+- `configs/dota/` contains lightweight DOTA examples for RGB and S2-adapter
+  checks.
+- `configs/_base_/` contains shared DIOR-R templates used by the six
+  entrypoints. These are not intended as primary launch configs.
+
+`configs/dota/olmoearth_oriented-rcnn_1x_dota_rgb.py` uses MMRotate
+`DOTADataset` for standard DOTA-style split data:
 
   ```text
   data/split_ss_dota/
@@ -42,8 +48,8 @@ inside `projects/olmoearth`.
       annfiles/*.txt
   ```
 
-- `configs/olmoearth-base_oriented-rcnn_1x_dior-rgb.py`
-  uses MMRotate `DIORDataset` for DIOR-R oriented XML:
+The six `configs/dior/*.py` entrypoints use MMRotate `DIORDataset` for DIOR-R
+oriented XML:
 
   ```text
   DIOR/
@@ -54,14 +60,10 @@ inside `projects/olmoearth`.
     Annotations/Oriented Bounding Boxes/*.xml
   ```
 
-- `configs/olmoearth-base_oriented-rcnn_1x_dior-dota-rgb.py`
-  uses `DOTADataset` with DIOR class names for DIOR data that has already
-  been converted to DOTA-like `annfiles/*.txt`.
-
-Each RGB config also has a `-s2adapter.py` counterpart. Use the plain `*-rgb.py`
-configs for direct RGB-modality experiments, and use `*-rgb-s2adapter.py` when
-you need to evaluate released OLMoEarth Sentinel-2 checkpoints on RGB imagery.
-All provided oriented-RCNN configs use `patch_size = 16`.
+Use the direct `*-rgb.py` configs for OLMoEarth 10m/2m RGB-modality
+experiments. Use the native `*-rgb-s2adapter.py` configs when evaluating the
+released OLMoEarth Sentinel-2 checkpoint on RGB imagery. All provided
+oriented-RCNN configs use `patch_size = 16`.
 
 ## OLMoEarth Version Matrix
 
@@ -70,9 +72,9 @@ and one full-finetuning config for each OLMoEarth variant:
 
 | Variant | Modality path | Frozen backbone | Full finetune |
 | --- | --- | --- | --- |
-| native | RGB-to-Sentinel-2 adapter | `configs/olmoearth-native_oriented-rcnn_1x_dior-rgb-s2adapter-frozen.py` | `configs/olmoearth-native_oriented-rcnn_1x_dior-rgb-s2adapter-finetune.py` |
-| 10m | native RGB modality | `configs/olmoearth-10m_oriented-rcnn_1x_dior-rgb-frozen.py` | `configs/olmoearth-10m_oriented-rcnn_1x_dior-rgb-finetune.py` |
-| 2m | native RGB modality | `configs/olmoearth-2m_oriented-rcnn_1x_dior-rgb-frozen.py` | `configs/olmoearth-2m_oriented-rcnn_1x_dior-rgb-finetune.py` |
+| native | RGB-to-Sentinel-2 adapter | `configs/dior/olmoearth-native_oriented-rcnn_1x_dior-rgb-s2adapter-frozen.py` | `configs/dior/olmoearth-native_oriented-rcnn_1x_dior-rgb-s2adapter-finetune.py` |
+| 10m | native RGB modality | `configs/dior/olmoearth-10m_oriented-rcnn_1x_dior-rgb-frozen.py` | `configs/dior/olmoearth-10m_oriented-rcnn_1x_dior-rgb-finetune.py` |
+| 2m | native RGB modality | `configs/dior/olmoearth-2m_oriented-rcnn_1x_dior-rgb-frozen.py` | `configs/dior/olmoearth-2m_oriented-rcnn_1x_dior-rgb-finetune.py` |
 
 The 10m and 2m configs rely on the active Python environment to provide the
 intended `olmoearth_pretrain` package. Before running a variant, install that
@@ -87,7 +89,7 @@ config defaults expect each model directory to contain `config.json` and
 
 ```bash
 python tools/train.py \
-  projects/olmoearth/configs/olmoearth-base_oriented-rcnn_1x_dota-rgb.py
+  projects/olmoearth/configs/dior/olmoearth-10m_oriented-rcnn_1x_dior-rgb-frozen.py
 ```
 
 For your server paths, edit these variables at the top of the config:
@@ -101,7 +103,7 @@ or override the already-expanded fields from the command line:
 
 ```bash
 python tools/train.py \
-  projects/olmoearth/configs/olmoearth-base_oriented-rcnn_1x_dior-dota-rgb.py \
+  projects/olmoearth/configs/dior/olmoearth-10m_oriented-rcnn_1x_dior-rgb-frozen.py \
   --cfg-options \
   train_dataloader.dataset.data_root="/mnt/ht2-nas2/EO test/zyf/data/DIOR" \
   val_dataloader.dataset.data_root="/mnt/ht2-nas2/EO test/zyf/data/DIOR" \
