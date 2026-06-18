@@ -5,7 +5,7 @@ olmoearth_model_dir = (
 )
 model_config_path = f"{olmoearth_model_dir}/config.json"
 weights_path = f"{olmoearth_model_dir}/weights.pth"
-work_dir = "./work_dirs/olmoearth-10m_oriented-rcnn_dior-rgb-frozen"
+work_dir = "./work_dirs/olmoearth-10m_oriented-rcnn_dior-r_rgb-frozen"
 patch_size = 4
 
 model = dict(

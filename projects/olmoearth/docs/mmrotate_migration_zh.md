@@ -18,29 +18,35 @@ coder 等组件。因此旋转框任务应该迁到 MMRotate，而不是在 MMDe
 | 水平框 `xmin/ymin/xmax/ymax` | MMDetection | 普通 Faster R-CNN、水平 NMS、VOC/COCO metric |
 | 8 点框或 `robndbox` | MMRotate | rotated IoU、rotated NMS、DOTA metric |
 
-## DIOR 和 DOTA 的区别
+## DIOR-R 数据组织
 
-DIOR 不是天然等于 DOTA 格式：
+这里使用的是 DIOR-R，不是原始 DIOR。不要把 DIOR 的
+`ImageSets/Main + XML` 组织套到这些 config 上。
 
-- 原始 DIOR 常见结构是 `ImageSets/Main/*.txt` 加 XML 标注。
-- DIOR-R 是 oriented XML，框在 `robndbox` 中。
-- DOTA 格式是 `annfiles/*.txt`，每行 8 个点加类别和 difficulty。
+当前 DIOR-R 数据按 split 存放：
 
-本项目给三种配置：
+```text
+DIOR-R/
+  trainval/
+    DIOR_trainval.json
+    images/
+    labelTxt/
+  test/
+    DIOR_test.json
+    images/
+    labelTxt/
+```
 
-- `configs/dota/olmoearth_oriented-rcnn_1x_dota_rgb.py`：标准 DOTA。
-- `configs/dior/olmoearth-10m_oriented-rcnn_1x_dior-rgb-frozen.py`：DIOR-R oriented XML。
-- DIOR/DIOR-R 如果已经转成 DOTA txt，需要以 `configs/dota/` 示例为模板，
-  另行调整类别数和数据路径；当前不再保留专门的 DIOR-DOTA 入口配置。
+`labelTxt/*.txt` 每行是 8 个点、类别名和 difficulty，因此 config 使用
+`DOTADataset` 读取 `trainval/labelTxt/` 与 `test/labelTxt/`。同级的
+`DIOR_trainval.json` / `DIOR_test.json` 不由当前 MMRotate pipeline 直接读取。
 
-更具体地说：
+本项目给两类入口：
 
-| 磁盘上的标注 | 典型路径 | 推荐 config |
+| 数据 | 典型路径 | 推荐 config |
 | --- | --- | --- |
-| 原始 DIOR 水平框 XML | `Annotations/*.xml`，里面是 `bndbox` | 用 MMDetection，不用 MMRotate |
-| DIOR-R oriented XML | `Annotations/Oriented Bounding Boxes/*.xml`，里面是 `robndbox` | `configs/dior/olmoearth-10m_oriented-rcnn_1x_dior-rgb-frozen.py` |
-| DOTA txt | `trainval/annfiles/*.txt` | `configs/dota/olmoearth_oriented-rcnn_1x_dota_rgb.py` |
-| DIOR 转成 DOTA txt | `annfiles/*.txt`，类别是 DIOR 20 类 | 以 `configs/dota/` 示例为模板，另行调整 `num_classes` 和类别定义 |
+| DIOR-R | `trainval/labelTxt/*.txt`，`test/labelTxt/*.txt` | `configs/dior/` 下 6 个主实验 config |
+| DOTA | `trainval/annfiles/*.txt`，`val/annfiles/*.txt` | `configs/dota/` 下示例 config |
 
 训练前先用下面的命令确认目录，不要凭数据集名字猜格式：
 
@@ -69,7 +75,7 @@ LoadImageFromFile
 box 的流向是：
 
 ```text
-DOTA txt / DIOR-R XML
+DIOR-R/DOTA txt
   -> qbox: x1,y1,x2,y2,x3,y3,x4,y4
   -> ConvertBoxType(qbox -> rbox)
   -> rotated assigner / rotated bbox coder
@@ -131,24 +137,17 @@ python tools/train.py \
   projects/olmoearth/configs/dota/olmoearth_oriented-rcnn_1x_dota_rgb.py
 ```
 
-DIOR-R XML：
+DIOR-R：
 
 ```bash
 python tools/train.py \
   projects/olmoearth/configs/dior/olmoearth-10m_oriented-rcnn_1x_dior-rgb-frozen.py
 ```
 
-DIOR 已经转成 DOTA-like txt：
-
-```bash
-python tools/train.py \
-  projects/olmoearth/configs/dota/olmoearth_oriented-rcnn_1x_dota_rgb.py
-```
-
 需要重点检查配置顶部：
 
 ```python
-data_root = "/mnt/ht2-nas2/EO test/zyf/data/DIOR"
+data_root = "/mnt/ht2-nas2/EO test/zyf/data/DIOR-R"
 olmoearth_model_dir = "/mnt/ht2-nas2/EO_test/model/OlmoEarth-v1-Base"
 model_config_path = f"{olmoearth_model_dir}/config.json"
 weights_path = f"{olmoearth_model_dir}/weights.pth"
@@ -193,20 +192,29 @@ python tools/test.py \
   work_dirs/olmoearth_oriented-rcnn_dota-rgb/latest.pth
 ```
 
-如果使用 DIOR-R 或 DIOR-DOTA，把 config 路径替换为对应文件即可。
+如果使用 DIOR-R，把 config 路径替换为 `configs/dior/` 下对应的 6 个主实验
+config 即可。
 
 ## 常见问题
 
-### DIOR 跑不起来
+### DIOR-R 跑不起来
 
-先确认它到底是水平框 XML、DIOR-R XML，还是 DOTA txt。水平框 XML 应该用
-MMDetection 的 DIOR config；MMRotate 的 `DIORDataset` 默认读
-`Annotations/Oriented Bounding Boxes/*.xml` 里的 `robndbox`。
+先确认目录是否是：
+
+```text
+trainval/images/
+trainval/labelTxt/
+test/images/
+test/labelTxt/
+```
+
+当前 config 用的是 `DOTADataset`，不会读取 DIOR 的 `ImageSets/Main`，
+也不会读取 XML。
 
 ### 类别数不对
 
-DOTA 是 15 类，DIOR 是 20 类。DIOR-DOTA config 虽然用的是
-`DOTADataset`，但必须覆盖 `metainfo.classes` 和 `bbox_head.num_classes=20`。
+DOTA 是 15 类，DIOR-R 是 20 类。DIOR-R config 用 `DOTADataset`，但已经覆盖
+了 `metainfo.classes`，并让 `bbox_head.num_classes = len(classes)`。
 
 ### RGB 不是论文复现
 

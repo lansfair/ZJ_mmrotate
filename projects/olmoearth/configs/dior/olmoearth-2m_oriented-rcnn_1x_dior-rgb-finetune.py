@@ -5,7 +5,7 @@ olmoearth_model_dir = (
 )
 model_config_path = f"{olmoearth_model_dir}/config.json"
 weights_path = f"{olmoearth_model_dir}/weights.pth"
-work_dir = "./work_dirs/olmoearth-2m_oriented-rcnn_dior-rgb-finetune"
+work_dir = "./work_dirs/olmoearth-2m_oriented-rcnn_dior-r_rgb-finetune"
 
 model = dict(
     backbone=dict(

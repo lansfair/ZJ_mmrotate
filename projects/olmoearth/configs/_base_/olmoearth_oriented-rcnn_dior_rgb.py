@@ -8,11 +8,11 @@ custom_imports = dict(
     allow_failed_imports=False,
 )
 
-data_root = "/mnt/ht2-nas2/EO test/zyf/data/DIOR"
+data_root = "/mnt/ht2-nas2/EO test/zyf/data/DIOR-R"
 olmoearth_model_dir = "/mnt/ht2-nas2/EO_test/model/OlmoEarth-v1-Base"
 model_config_path = f"{olmoearth_model_dir}/config.json"
 weights_path = f"{olmoearth_model_dir}/weights.pth"
-work_dir = "./work_dirs/olmoearth_oriented-rcnn_dior-rgb"
+work_dir = "./work_dirs/olmoearth_oriented-rcnn_dior-r_rgb"
 
 angle_version = "le90"
 num_timesteps = 1
@@ -24,8 +24,33 @@ roi_featmap_strides = featmap_strides
 neck_rescale_factors = [4, 2, 1, 0.5]
 num_rgb_channels = 4 * num_timesteps
 backend_args = None
+img_suffix = "jpg"
 
-dataset_type = "DIORDataset"
+dataset_type = "DOTADataset"
+classes = (
+    "airplane",
+    "airport",
+    "baseballfield",
+    "basketballcourt",
+    "bridge",
+    "chimney",
+    "expressway-service-area",
+    "expressway-toll-station",
+    "dam",
+    "golffield",
+    "groundtrackfield",
+    "harbor",
+    "overpass",
+    "ship",
+    "stadium",
+    "storagetank",
+    "tenniscourt",
+    "trainstation",
+    "vehicle",
+    "windmill",
+)
+metainfo = dict(classes=classes)
+num_classes = len(classes)
 train_pipeline = [
     dict(type="mmdet.LoadImageFromFile", backend_args=backend_args),
     dict(type="mmdet.LoadAnnotations", with_bbox=True, box_type="qbox"),
@@ -122,9 +147,10 @@ train_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file="ImageSets/Main/train.txt",
-        data_prefix=dict(img_path="JPEGImages-trainval"),
-        ann_type="obb",
+        ann_file="trainval/labelTxt/",
+        data_prefix=dict(img_path="trainval/images/"),
+        img_suffix=img_suffix,
+        metainfo=metainfo,
         filter_cfg=dict(filter_empty_gt=True),
         pipeline=train_pipeline,
     ),
@@ -138,9 +164,10 @@ val_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file="ImageSets/Main/test.txt",
-        data_prefix=dict(img_path="JPEGImages-test"),
-        ann_type="obb",
+        ann_file="test/labelTxt/",
+        data_prefix=dict(img_path="test/images/"),
+        img_suffix=img_suffix,
+        metainfo=metainfo,
         test_mode=True,
         pipeline=val_pipeline,
     ),
@@ -223,7 +250,7 @@ model = dict(
             in_channels=fpn_channels,
             fc_out_channels=1024,
             roi_feat_size=7,
-            num_classes=20,
+            num_classes=num_classes,
             reg_predictor_cfg=dict(type="mmdet.Linear"),
             cls_predictor_cfg=dict(type="mmdet.Linear"),
             bbox_coder=dict(
