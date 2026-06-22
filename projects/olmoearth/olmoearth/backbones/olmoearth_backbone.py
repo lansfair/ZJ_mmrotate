@@ -58,8 +58,7 @@ class OlmoEarthBackbone(BaseModule):
         self.band_names = list(get_modality_bands(modality))
         self.sample_field = get_sample_field(modality)
         self.model = build_olmoearth_model(model_config_path)
-        self.encoder = self.model.encoder
-        self.encoder.remove_masked_tokens = (
+        self.model.encoder.remove_masked_tokens = (
             self._remove_masked_tokens_sort_compat
         )
         self._batch_metainfo: list[dict[str, Any]] | None = None
@@ -297,7 +296,7 @@ class OlmoEarthBackbone(BaseModule):
         fast_pass = self.fast_pass
         if fast_pass is None:
             fast_pass = not self._has_missing_tokens(sample)
-        encoder_out = self.encoder(
+        encoder_out = self.model.encoder(
             sample,
             fast_pass=fast_pass,
             patch_size=self.patch_size,
