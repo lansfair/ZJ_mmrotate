@@ -20,5 +20,5 @@ model = dict(
 
 optim_wrapper = dict(
     paramwise_cfg=dict(custom_keys=dict(backbone=dict(lr_mult=0.1))),
-    clip_grad=dict(max_norm=1.0, norm_type=2),
+    clip_grad=dict(_delete_=True, max_norm=1.0, norm_type=2),
 )
