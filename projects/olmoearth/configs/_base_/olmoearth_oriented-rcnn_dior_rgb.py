@@ -344,7 +344,7 @@ model = dict(
 optim_wrapper = dict(
     type="OptimWrapper",
     optimizer=dict(_delete_=True, type="AdamW", lr=1e-4, weight_decay=0.05),
-    clip_grad=None,
+    clip_grad=dict(max_norm=35, norm_type=2),
 )
 default_hooks = dict(logger=dict(type="LoggerHook", interval=50))
 log_processor = dict(type="LogProcessor", window_size=50, by_epoch=True)

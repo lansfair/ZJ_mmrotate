@@ -19,5 +19,5 @@ model = dict(
 )
 
 optim_wrapper = dict(
-    clip_grad=dict(_delete_=True, max_norm=1.0, norm_type=2),
+    clip_grad=dict(_delete_=True, max_norm=35, norm_type=2),
 )
