@@ -1,5 +1,5 @@
 e2cnn
-mmcv>=2.0.0rc2
+mmcv>=2.0.0rc2,<=2.7.0
 mmdet>=3.0.0rc2
 mmengine>=0.1.0
 torch

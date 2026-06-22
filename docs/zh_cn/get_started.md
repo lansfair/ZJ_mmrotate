@@ -36,7 +36,7 @@ conda install pytorch==1.8.0 torchvision==0.9.0 cudatoolkit=10.2 -c pytorch
 ```shell
 pip install -U openmim
 mim install mmengine
-mim install "mmcv>=2.0.0rc2"
+mim install "mmcv>=2.0.0rc2,<=2.7.0"
 ```
 
 **第二步：** 安装 [MMDetection](https://github.com/open-mmlab/mmdetection) 。
@@ -149,7 +149,7 @@ pip install mmcv -f https://download.openmmlab.com/mmcv/dist/cu102/torch1.8/inde
 
 ```shell
 !pip3 install -U openmim
-!mim install "mmcv>=2.0.0rc2"
+!mim install "mmcv>=2.0.0rc2,<=2.7.0"
 !mim install 'mmdet>=3.0.0rc2'
 ```
 
