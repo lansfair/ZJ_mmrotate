@@ -1,7 +1,8 @@
 _base_ = ["../_base_/olmoearth_oriented-rcnn_dior_rgb.py"]
 
 olmoearth_model_dir = (
-    "D:/ZJ_projects/model_code/code_release/olmoearth10m/OlmoEarth-v1-Base"
+    "/mnt/ht2-nas2/EO_test/openmmlab-archive/pretrained/"
+    "new_olmoearth/olmoearth_10m/weight"
 )
 model_config_path = f"{olmoearth_model_dir}/config.json"
 weights_path = f"{olmoearth_model_dir}/weights.pth"
