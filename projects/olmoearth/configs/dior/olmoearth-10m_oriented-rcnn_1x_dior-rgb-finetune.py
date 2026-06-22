@@ -17,3 +17,8 @@ model = dict(
         frozen=False,
     ),
 )
+
+optim_wrapper = dict(
+    paramwise_cfg=dict(custom_keys=dict(backbone=dict(lr_mult=0.1))),
+    clip_grad=dict(max_norm=1.0, norm_type=2),
+)
